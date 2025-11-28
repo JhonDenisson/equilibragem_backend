@@ -4,7 +4,7 @@ import { authController } from "./modules/auth/auth.controller";
 import { usersController } from "./modules/users/users.controller";
 import { logger } from "./shared/middlewares/logger";
 
-const app = new Elysia()
+export const app = new Elysia()
   .use(logger)
   .use(swagger())
   .use(authController)
