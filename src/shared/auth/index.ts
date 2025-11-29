@@ -17,7 +17,6 @@ export const getAuthUser = async (
   if (!authorization) return null;
 
   const token = authorization.split(" ")[1];
-  console.log(authorization);
   if (!token) return null;
 
   const payload = await jwtInstance.verify(token);
