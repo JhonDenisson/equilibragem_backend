@@ -77,19 +77,12 @@ export class TransactionsService {
   }
 
   async create(data: NewTransaction) {
-    const [transaction] = await db
-      .insert(transactions)
-      .values(data)
-      .returning();
+    const [transaction] = await db.insert(transactions).values(data).returning();
 
     return transaction;
   }
 
-  async update(
-    id: number,
-    userId: number,
-    data: Partial<Omit<NewTransaction, "userId">>,
-  ) {
+  async update(id: number, userId: number, data: Partial<Omit<NewTransaction, "userId">>) {
     const [transaction] = await db
       .update(transactions)
       .set({ ...data, updatedAt: new Date() })

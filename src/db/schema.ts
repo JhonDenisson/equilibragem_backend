@@ -1,24 +1,10 @@
-import {
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  decimal,
-  pgEnum,
-  integer,
-} from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, decimal, pgEnum, integer } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 // Enums para tipo de transação
-export const transactionFlowEnum = pgEnum("transaction_flow", [
-  "income",
-  "expense",
-]);
+export const transactionFlowEnum = pgEnum("transaction_flow", ["income", "expense"]);
 
-export const transactionTypeEnum = pgEnum("transaction_type", [
-  "fixed",
-  "variable",
-]);
+export const transactionTypeEnum = pgEnum("transaction_type", ["fixed", "variable"]);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),

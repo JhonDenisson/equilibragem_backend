@@ -13,12 +13,6 @@
     "lineWidth": 100
   },
   "files": {
-    "includes": [
-      "**/*",
-      "!node_modules/**",
-      "!dist/**",
-      "!build/**",
-      "!coverage/**"
-    ]
+    "includes": ["**/*", "!node_modules/**", "!dist/**", "!build/**", "!coverage/**"]
   }
 }
