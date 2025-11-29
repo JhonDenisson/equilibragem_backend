@@ -1,16 +1,10 @@
 import { Elysia } from "elysia";
 import { AuthService } from "./auth.service";
 import { loginSchema, registerSchema } from "./auth.schema";
-
-import { jwt } from "@elysiajs/jwt";
+import { jwtConfig, requireAuth, isAuthError } from "../../shared/auth";
 
 export const authController = new Elysia({ prefix: "/auth" })
-  .use(
-    jwt({
-      name: "jwt",
-      secret: process.env.JWT_SECRET || "default_secret",
-    }),
-  )
+  .use(jwtConfig)
   .decorate("authService", new AuthService())
   .post(
     "/register",
@@ -52,18 +46,8 @@ export const authController = new Elysia({ prefix: "/auth" })
     },
   )
   .get("/profile", async ({ jwt, set, headers: { authorization } }) => {
-    if (!authorization) {
-      set.status = 401;
-      return { error: "Unauthorized" };
-    }
+    const result = await requireAuth(authorization, jwt, set);
+    if (isAuthError(result)) return result;
 
-    const token = authorization.split(" ")[1];
-    const profile = await jwt.verify(token);
-
-    if (!profile) {
-      set.status = 401;
-      return { error: "Unauthorized" };
-    }
-
-    return profile;
+    return result;
   });
