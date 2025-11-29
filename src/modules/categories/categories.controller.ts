@@ -1,84 +1,78 @@
 import { Elysia } from "elysia";
-import { TransactionsService } from "./transactions.service";
-import { createTransactionSchema, updateTransactionSchema } from "./transactions.schema";
+import { CategoriesService } from "./categories.service";
+import { createCategorySchema, updateCategorySchema } from "./categories.schema";
 import { jwtConfig, isAuthError, requireAuth } from "../../shared/auth";
 
-const transactionsService = new TransactionsService();
+const categoriesService = new CategoriesService();
 
-export const transactionsController = new Elysia({ prefix: "/transactions" })
+export const categoriesController = new Elysia({ prefix: "/categories" })
   .use(jwtConfig)
   .get("/", async ({ jwt, headers, set }) => {
     const result = await requireAuth(headers.authorization, jwt, set);
     if (isAuthError(result)) return result;
 
-    return await transactionsService.findAllByUser(result.id);
+    return await categoriesService.findAllByUser(result.id);
   })
   .get("/:id", async ({ jwt, headers, params: { id }, set }) => {
     const result = await requireAuth(headers.authorization, jwt, set);
     if (isAuthError(result)) return result;
 
-    const transaction = await transactionsService.findByIdWithCategory(Number(id), result.id);
+    const category = await categoriesService.findById(Number(id), result.id);
 
-    if (!transaction) {
+    if (!category) {
       set.status = 404;
-      return { error: "Transaction not found" };
+      return { error: "Category not found" };
     }
 
-    return transaction;
+    return category;
   })
   .post("/", async ({ jwt, headers, body, set }) => {
     const result = await requireAuth(headers.authorization, jwt, set);
     if (isAuthError(result)) return result;
 
-    const validation = createTransactionSchema.safeParse(body);
+    const validation = createCategorySchema.safeParse(body);
     if (!validation.success) {
       set.status = 400;
       return { error: validation.error.errors };
     }
 
-    const transaction = await transactionsService.create({
+    const category = await categoriesService.create({
       ...validation.data,
       userId: result.id,
-      date: new Date(validation.data.date),
     });
 
     set.status = 201;
-    return transaction;
+    return category;
   })
   .put("/:id", async ({ jwt, headers, params: { id }, body, set }) => {
     const result = await requireAuth(headers.authorization, jwt, set);
     if (isAuthError(result)) return result;
 
-    const validation = updateTransactionSchema.safeParse(body);
+    const validation = updateCategorySchema.safeParse(body);
     if (!validation.success) {
       set.status = 400;
       return { error: validation.error.errors };
     }
 
-    const updateData = {
-      ...validation.data,
-      date: validation.data.date ? new Date(validation.data.date) : undefined,
-    };
+    const category = await categoriesService.update(Number(id), result.id, validation.data);
 
-    const transaction = await transactionsService.update(Number(id), result.id, updateData);
-
-    if (!transaction) {
+    if (!category) {
       set.status = 404;
-      return { error: "Transaction not found" };
+      return { error: "Category not found" };
     }
 
-    return transaction;
+    return category;
   })
   .delete("/:id", async ({ jwt, headers, params: { id }, set }) => {
     const result = await requireAuth(headers.authorization, jwt, set);
     if (isAuthError(result)) return result;
 
-    const deleted = await transactionsService.delete(Number(id), result.id);
+    const deleted = await categoriesService.delete(Number(id), result.id);
 
     if (!deleted) {
       set.status = 404;
-      return { error: "Transaction not found" };
+      return { error: "Category not found" };
     }
 
-    return { message: "Transaction deleted successfully" };
+    return { message: "Category deleted successfully" };
   });

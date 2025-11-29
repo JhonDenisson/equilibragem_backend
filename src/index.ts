@@ -7,6 +7,7 @@ import { cors } from "@elysiajs/cors";
 // controllers
 import { authController } from "./modules/auth/auth.controller";
 import { transactionsController } from "./modules/transactions/transactions.controller";
+import { categoriesController } from "./modules/categories/categories.controller";
 
 // middlewares
 import { logger } from "./shared/middlewares/logger";
@@ -17,8 +18,7 @@ export const app = new Elysia()
   .use(cors())
   .use(authController)
   .use(transactionsController)
+  .use(categoriesController)
   .listen(3000);
 
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
-);
+console.log(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`);
