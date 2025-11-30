@@ -15,7 +15,7 @@ import { logger } from "./shared/middlewares/logger";
 export const app = new Elysia()
   .use(logger)
   .use(swagger())
-  .use(cors())
+  .use(cors({ origin: "https://jhondenisson.github.io/eq_front/" }))
   .use(authController)
   .use(transactionsController)
   .use(categoriesController)
