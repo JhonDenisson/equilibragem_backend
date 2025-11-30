@@ -1,0 +1,33 @@
+# Dependências
+node_modules
+
+# Arquivos de ambiente
+.env
+.env.*
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+
+# Logs
+*.log
+logs
+
+# Arquivos de desenvolvimento
+*.md
+!README.md
+biome.json
+tsconfig.json
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Cache
+.cache
+*.tsbuildinfo
