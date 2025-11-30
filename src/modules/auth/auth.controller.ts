@@ -2,9 +2,11 @@ import { Elysia } from "elysia";
 import { AuthService } from "./auth.service";
 import { loginSchema, registerSchema } from "./auth.schema";
 import { jwtConfig, requireAuth, isAuthError } from "../../shared/auth";
+import { rateLimitPresets } from "../../shared/middlewares/rate-limit";
 
 export const authController = new Elysia({ prefix: "/auth" })
   .use(jwtConfig)
+  .use(rateLimitPresets.auth())
   .decorate("authService", new AuthService())
   .post(
     "/register",

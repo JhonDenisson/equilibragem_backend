@@ -11,9 +11,17 @@ import { categoriesController } from "./modules/categories/categories.controller
 
 // middlewares
 import { logger } from "./shared/middlewares/logger";
+import { rateLimit } from "./shared/middlewares/rate-limit";
 
 export const app = new Elysia()
   .use(logger)
+  .use(
+    rateLimit({
+      max: 100,
+      duration: 60000, // 1 minute
+      message: "Too many requests, please try again later.",
+    })
+  )
   .use(swagger())
   .use(cors({ origin: "https://jhondenisson.github.io" }))
   .use(authController)
