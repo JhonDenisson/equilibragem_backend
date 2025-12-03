@@ -1,17 +1,28 @@
 import { Elysia } from "elysia";
 import { CategoriesService } from "./categories.service";
-import { createCategorySchema, updateCategorySchema } from "./categories.schema";
+import {
+  createCategorySchema,
+  updateCategorySchema,
+  queryCategoriesSchema,
+} from "./categories.schema";
 import { jwtConfig, isAuthError, requireAuth } from "../../shared/auth";
 
 const categoriesService = new CategoriesService();
 
 export const categoriesController = new Elysia({ prefix: "/categories" })
   .use(jwtConfig)
-  .get("/", async ({ jwt, headers, set }) => {
+  .get("/", async ({ jwt, headers, query, set }) => {
     const result = await requireAuth(headers.authorization, jwt, set);
     if (isAuthError(result)) return result;
 
-    return await categoriesService.findAllByUser(result.id);
+    const validation = queryCategoriesSchema.safeParse(query);
+
+    if (!validation.success) {
+      set.status = 400;
+      return { error: validation.error.errors };
+    }
+
+    return await categoriesService.findAllByUser(result.id, validation.data);
   })
   .get("/:id", async ({ jwt, headers, params: { id }, set }) => {
     const result = await requireAuth(headers.authorization, jwt, set);

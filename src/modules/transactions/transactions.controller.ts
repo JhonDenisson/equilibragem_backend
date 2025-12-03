@@ -1,17 +1,28 @@
 import { Elysia } from "elysia";
 import { TransactionsService } from "./transactions.service";
-import { createTransactionSchema, updateTransactionSchema } from "./transactions.schema";
+import {
+  createTransactionSchema,
+  updateTransactionSchema,
+  queryTransactionsSchema,
+} from "./transactions.schema";
 import { jwtConfig, isAuthError, requireAuth } from "../../shared/auth";
 
 const transactionsService = new TransactionsService();
 
 export const transactionsController = new Elysia({ prefix: "/transactions" })
   .use(jwtConfig)
-  .get("/", async ({ jwt, headers, set }) => {
+  .get("/", async ({ jwt, headers, query, set }) => {
     const result = await requireAuth(headers.authorization, jwt, set);
     if (isAuthError(result)) return result;
 
-    return await transactionsService.findAllByUser(result.id);
+    const validation = queryTransactionsSchema.safeParse(query);
+
+    if (!validation.success) {
+      set.status = 400;
+      return { error: validation.error.errors };
+    }
+
+    return await transactionsService.findAllByUser(result.id, validation.data);
   })
   .get("/:id", async ({ jwt, headers, params: { id }, set }) => {
     const result = await requireAuth(headers.authorization, jwt, set);

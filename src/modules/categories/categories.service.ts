@@ -1,7 +1,8 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, type SQL } from "drizzle-orm";
 import { db } from "../../db";
 import { categories } from "../../db/schema";
 import type { NewCategory } from "../../db/schema";
+import type { QueryCategoriesDTO } from "./categories.schema";
 
 export class CategoriesService {
   async findById(id: number, userId: number) {
@@ -23,7 +24,13 @@ export class CategoriesService {
     return category;
   }
 
-  async findAllByUser(userId: number) {
+  async findAllByUser(userId: number, filters?: QueryCategoriesDTO) {
+    const conditions: SQL[] = [eq(categories.userId, userId)];
+
+    if (filters?.flow) {
+      conditions.push(eq(categories.flow, filters.flow));
+    }
+
     return await db
       .select({
         id: categories.id,
@@ -34,20 +41,7 @@ export class CategoriesService {
         createdAt: categories.createdAt,
       })
       .from(categories)
-      .where(eq(categories.userId, userId));
-  }
-
-  async findByFlow(userId: number, flow: "income" | "expense") {
-    return await db
-      .select({
-        id: categories.id,
-        name: categories.name,
-        icon: categories.icon,
-        color: categories.color,
-        flow: categories.flow,
-      })
-      .from(categories)
-      .where(and(eq(categories.userId, userId), eq(categories.flow, flow)));
+      .where(and(...conditions));
   }
 
   async create(data: NewCategory) {

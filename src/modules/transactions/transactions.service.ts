@@ -1,7 +1,8 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc, gte, lte, type SQL } from "drizzle-orm";
 import { db } from "../../db";
 import { transactions, categories } from "../../db/schema";
 import type { NewTransaction } from "../../db/schema";
+import type { QueryTransactionsDTO } from "./transactions.schema";
 
 export class TransactionsService {
   async findById(id: number, userId: number) {
@@ -53,7 +54,25 @@ export class TransactionsService {
     return transaction;
   }
 
-  async findAllByUser(userId: number) {
+  async findAllByUser(userId: number, filters?: QueryTransactionsDTO) {
+    const conditions: SQL[] = [eq(transactions.userId, userId)];
+
+    if (filters?.flow) {
+      conditions.push(eq(transactions.flow, filters.flow));
+    }
+    if (filters?.type) {
+      conditions.push(eq(transactions.type, filters.type));
+    }
+    if (filters?.categoryId) {
+      conditions.push(eq(transactions.categoryId, filters.categoryId));
+    }
+    if (filters?.startDate) {
+      conditions.push(gte(transactions.date, new Date(filters.startDate)));
+    }
+    if (filters?.endDate) {
+      conditions.push(lte(transactions.date, new Date(filters.endDate)));
+    }
+
     return await db
       .select({
         id: transactions.id,
@@ -73,7 +92,10 @@ export class TransactionsService {
       })
       .from(transactions)
       .leftJoin(categories, eq(transactions.categoryId, categories.id))
-      .where(eq(transactions.userId, userId));
+      .where(and(...conditions))
+      .orderBy(desc(transactions.date))
+      .limit(filters?.limit || 20)
+      .offset(filters?.offset || 0);
   }
 
   async create(data: NewTransaction) {
