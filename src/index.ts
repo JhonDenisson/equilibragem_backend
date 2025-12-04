@@ -24,7 +24,7 @@ export const app = new Elysia()
     }),
   )
   .use(swagger())
-  .use(cors({ origin: "*" }))
+  .use(cors({ origin: process.env.FRONT_URL }))
   .use(authController)
   .use(transactionsController)
   .use(categoriesController)
