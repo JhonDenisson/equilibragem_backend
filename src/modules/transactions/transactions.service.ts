@@ -73,6 +73,18 @@ export class TransactionsService {
       conditions.push(lte(transactions.date, new Date(filters.endDate)));
     }
 
+    if (filters?.year && filters?.month) {
+      const startOfMonth = new Date(filters.year, filters.month - 1, 1);
+      const endOfMonth = new Date(filters.year, filters.month, 0, 23, 59, 59, 999);
+      conditions.push(gte(transactions.date, startOfMonth));
+      conditions.push(lte(transactions.date, endOfMonth));
+    } else if (filters?.year) {
+      const startOfYear = new Date(filters.year, 0, 1);
+      const endOfYear = new Date(filters.year, 11, 31, 23, 59, 59, 999);
+      conditions.push(gte(transactions.date, startOfYear));
+      conditions.push(lte(transactions.date, endOfYear));
+    }
+
     return await db
       .select({
         id: transactions.id,
