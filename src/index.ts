@@ -8,6 +8,7 @@ import { cors } from "@elysiajs/cors";
 import { authController } from "./modules/auth/auth.controller";
 import { transactionsController } from "./modules/transactions/transactions.controller";
 import { categoriesController } from "./modules/categories/categories.controller";
+import { summariesController } from "./modules/summaries/summaries.controller";
 
 // middlewares
 import { logger } from "./shared/middlewares/logger";
@@ -20,13 +21,14 @@ export const app = new Elysia()
       max: 100,
       duration: 60000, // 1 minute
       message: "Too many requests, please try again later.",
-    })
+    }),
   )
   .use(swagger())
-  .use(cors({ origin: "https://jhondenisson.github.io" }))
+  .use(cors({ origin: "*" }))
   .use(authController)
   .use(transactionsController)
   .use(categoriesController)
+  .use(summariesController)
   .listen(process.env.PORT || 3000);
 
 console.log(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`);
