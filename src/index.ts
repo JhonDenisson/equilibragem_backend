@@ -14,7 +14,9 @@ import { summariesController } from "./modules/summaries/summaries.controller";
 import { logger } from "./shared/middlewares/logger";
 import { rateLimit } from "./shared/middlewares/rate-limit";
 
-export const app = new Elysia()
+export const app = new Elysia();
+
+app
   .use(logger)
   .use(
     rateLimit({
@@ -22,8 +24,13 @@ export const app = new Elysia()
       duration: 60000, // 1 minute
       message: "Too many requests, please try again later.",
     }),
-  )
-  .use(swagger())
+  );
+
+if (process.env.NODE_ENV !== "production") {
+  app.use(swagger());
+}
+
+app
   .use(cors({ origin: process.env.FRONT_URL }))
   .use(authController)
   .use(transactionsController)
